@@ -88,3 +88,11 @@
 .lines .line:nth-child(3) { top: 73px; }
 .lines .line:nth-child(4) { top: 93px; }
 .lines .line:nth-child(5) { top: 113px; }
+
+/* Five rows while the server locks the gens: the frame one row shorter, its bottom still at
+   480 - 50, so the rows keep their place above the HUD. */
+#panel.without-gens { top: 304px; height: 126px; }
+#panel.without-gens #back { height: 125px; }
+#panel.without-gens #frame_down { top: 81px; }
+#panel.without-gens .frame-middles .frame-middle:nth-child(4),
+#panel.without-gens .lines .line:nth-child(5) { display: none; }

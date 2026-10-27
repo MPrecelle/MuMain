@@ -7,6 +7,7 @@
 #include "I18N/All.h"
 
 #include "Core/Utilities/StringUtils.h"
+#include "GameLogic/Content/LockedContent.h"
 #include "Render/RmlUi/RmlUiRuntime.h"
 #include "UI/RmlBridge/RmlDocumentVisibility.h"
 #include "UI/RmlBridge/RmlNativeTextSize.h"
@@ -30,6 +31,17 @@ void SyncFloat(RmlModelBinder<Model>& binder, float Model::* field, const char* 
         return;
     model.*field = value;
     binder.MarkDirty(name);
+}
+
+void BuildRows(WindowMenuRmlModel& model)
+{
+    model.rows.clear();
+    for (int i = 0; i < CWindowMenu::MENU_MAX_INDEX; ++i)
+    {
+        if (i == CWindowMenu::MENU_GENS && model.gensLocked)
+            continue;
+        model.rows.push_back({StringUtils::WideToNarrow(I18N::Game::Lookup(kMenuTextIds[i])), i});
+    }
 }
 } // namespace
 
@@ -158,6 +170,7 @@ void mu::ui::window::CWindowMenu::RunMenuEntry(int entry)
 void mu::ui::window::CWindowMenu::BindRmlModel(Rml::DataModelConstructor& c, WindowMenuRmlModel& model)
 {
     c.Bind("text_px", &model.textPx);
+    c.Bind("gens_locked", &model.gensLocked);
 
     auto row = c.RegisterStruct<WindowMenuRowEntry>();
     row.RegisterMember("label", &WindowMenuRowEntry::label);
@@ -172,9 +185,7 @@ void mu::ui::window::CWindowMenu::BindRmlModel(Rml::DataModelConstructor& c, Win
                                 m_PendingEntry = arguments[0].Get<int>(-1);
                         });
 
-    model.rows.clear();
-    for (int i = 0; i < MENU_MAX_INDEX; ++i)
-        model.rows.push_back({StringUtils::WideToNarrow(I18N::Game::Lookup(kMenuTextIds[i])), i});
+    BuildRows(model);
 }
 
 void mu::ui::window::CWindowMenu::BuildRmlUi()
@@ -188,12 +199,28 @@ void mu::ui::window::CWindowMenu::SyncRmlModel()
     if (!m_RmlView.Document())
         return;
 
+    // Before the menu shows, so it never opens with the gens row of the last character.
+    SyncGensRow();
+
     // The original drew the menu over the HUD and over every window below its layer depth.
     UI::RmlBridge::SyncDocumentVisibilityInFront(m_RmlView.Document(), IsVisible());
     if (!IsVisible())
         return;
 
     SyncTransform();
+}
+
+void mu::ui::window::CWindowMenu::SyncGensRow()
+{
+    WindowMenuRmlModel& model = m_RmlView.GetModel();
+    const bool gensLocked = GameLogic::Content::IsGensLocked();
+    if (model.gensLocked == gensLocked)
+        return;
+
+    model.gensLocked = gensLocked;
+    BuildRows(model);
+    m_RmlView.MarkDirty("gens_locked");
+    m_RmlView.MarkDirty("rows");
 }
 
 void mu::ui::window::CWindowMenu::SyncTransform()

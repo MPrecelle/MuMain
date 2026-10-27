@@ -54,6 +54,8 @@ private:
     void BuildRmlUi();
     void SyncRmlModel();
     void SyncTransform();
+    // Hides the gens row while the server locks the gens.
+    void SyncGensRow();
     // What a click on the row did in the original; runs from Update(), outside RmlUi's own event
     // dispatch, since most rows open or close other documents.
     void RunMenuEntry(int entry);

@@ -36,6 +36,7 @@ namespace mu::ui::window
         bool showChatLog = true;
         bool showFrame = false;
         bool whisperSend = true;
+        bool gensLocked = false; // the server locked the gens: no gens chat button
 
         // The buttons' hints, in the button row's order.
         std::array<Rml::String, 10> buttonHints;

@@ -48,6 +48,7 @@
 #include "Engine/AI/GOBoid.h"
 #include "GameLogic/Quests/CSQuest.h"
 #include "GameLogic/Items/PersonalShopTitleImp.h"
+#include "GameLogic/Content/LockedContent.h"
 #include "GameLogic/NPCs/npcBreeder.h"
 #include "GameLogic/Pets/GIPetManager.h"
 #include "GameLogic/Pets/w_PetProcess.h"
@@ -695,6 +696,8 @@ void ReceiveCharacterListExtended(const BYTE* ReceiveBuffer)
 
     // The server sends the allowed price types again when a character enters the game.
     GameLogic::PersonalShop::SetAllowedPriceTypes({});
+    // Also the locked content; servers which don't send it lock nothing.
+    GameLogic::Content::ClearLockedContent();
 
     ClearCharacters();
     SelectedCharacter = -1;
@@ -9381,6 +9384,18 @@ void ReceivePersonalShopPriceTypes(std::span<const BYTE> ReceiveBuffer)
     GameLogic::PersonalShop::SetAllowedPriceTypes(priceItemTypes);
 }
 
+void ReceiveLockedContent(std::span<const BYTE> ReceiveBuffer)
+{
+    const auto content = GameLogic::Content::ParseLockedContent(ReceiveBuffer);
+    if (!content.has_value())
+    {
+        g_ErrorReport.Write(L"@ [Fault] ReceiveLockedContent (size : %d)\n", static_cast<int>(ReceiveBuffer.size()));
+        return;
+    }
+
+    GameLogic::Content::SetLockedContent(*content);
+}
+
 void ReceivePersonalShopItemList(std::span<const BYTE> ReceiveBuffer)
 {
     auto Header = safe_cast<GETPSHOPITEMLIST_HEADERINFO>(ReceiveBuffer);
@@ -13236,6 +13251,10 @@ static void ProcessPacket(const BYTE* ReceiveBuffer, int32_t Size)
     }
     switch (HeadCode)
     {
+    case GameLogic::Content::LockedContentHeadCode:
+        if (!bIsC1C3)
+            ReceiveLockedContent(received_span);
+        break;
     case 0xF1:
     {
         auto Data = (LPPHEADER_DEFAULT_SUBCODE)ReceiveBuffer;

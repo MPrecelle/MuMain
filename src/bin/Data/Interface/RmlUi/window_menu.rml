@@ -13,9 +13,12 @@
 	     (--root-scale), so its glyphs rasterise at the original's size.
 
 	     A row click runs the row's action from C++ (windowmenu_select); the hover highlight and
-	     arrows are the row's own :hover. -->
+	     arrows are the row's own :hover.
+
+	     While the server locks the gens there's no gens row, and #panel takes the frame for five
+	     rows (without-gens). -->
 	<div id="screen" class="hud-board">
-		<div id="panel">
+		<div id="panel" data-class-without-gens="gens_locked">
 			<div id="back"></div>
 			<div id="frame_up"></div>
 			<div class="frame-middles"><div class="frame-middle"></div><div class="frame-middle"></div><div class="frame-middle"></div><div class="frame-middle"></div></div>

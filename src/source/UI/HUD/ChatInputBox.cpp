@@ -17,6 +17,7 @@
 #include "World/MapInfra/MapManager.h"
 #include "Engine/Object/ZzzInterface.h"
 #include "GameLogic/Items/ItemCategories.h"
+#include "GameLogic/Content/LockedContent.h"
 
 #ifdef _EDITOR
 #include "imgui.h"
@@ -476,6 +477,7 @@ void mu::ui::window::CChatInputBox::BindRmlModel(Rml::DataModelConstructor& c, C
     c.Bind("whisper_id", &model.whisperId);
     c.Bind("input_msg_type", &model.inputMsgType);
     c.Bind("block_whisper", &model.blockWhisper);
+    c.Bind("gens_locked", &model.gensLocked);
     c.Bind("show_system", &model.showSystem);
     c.Bind("show_chat_log", &model.showChatLog);
     c.Bind("show_frame", &model.showFrame);
@@ -487,7 +489,9 @@ void mu::ui::window::CChatInputBox::BindRmlModel(Rml::DataModelConstructor& c, C
         [this](Rml::DataModelHandle, Rml::Event&, const Rml::VariantList& args)
         {
             if (args.empty()) return;
-            SetInputMsgType(INPUT_CHAT_MESSAGE + args[0].Get<int>(0));
+            const int inputMsgType = INPUT_CHAT_MESSAGE + args[0].Get<int>(0);
+            if (inputMsgType == INPUT_GENS_MESSAGE && GameLogic::Content::IsGensLocked()) return;
+            SetInputMsgType(inputMsgType);
             PlayBuffer(SOUND_CLICK01);
         });
 
@@ -579,6 +583,10 @@ void mu::ui::window::CChatInputBox::SyncRmlModel()
     };
 
     syncBool(&ChatInputRmlModel::blockWhisper, "block_whisper", m_bBlockWhisper);
+    const bool gensLocked = GameLogic::Content::IsGensLocked();
+    syncBool(&ChatInputRmlModel::gensLocked, "gens_locked", gensLocked);
+    if (gensLocked && GetInputMsgType() == INPUT_GENS_MESSAGE)
+        SetInputMsgType(INPUT_CHAT_MESSAGE);
     syncBool(&ChatInputRmlModel::showSystem, "show_system", m_bShowSystemMessages);
     syncBool(&ChatInputRmlModel::showChatLog, "show_chat_log", m_bShowChatLog);
     syncBool(&ChatInputRmlModel::whisperSend, "whisper_send", m_bWhisperSend);

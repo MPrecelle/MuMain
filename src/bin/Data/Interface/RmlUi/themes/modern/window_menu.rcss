@@ -73,3 +73,7 @@
 .lines .line:nth-child(3) { top: 73px; }
 .lines .line:nth-child(4) { top: 93px; }
 .lines .line:nth-child(5) { top: 113px; }
+
+/* Five rows while the server locks the gens: one row shorter, the bottom in the same place. */
+#panel.without-gens { top: 304px; height: 126px; }
+#panel.without-gens .lines .line:nth-child(5) { display: none; }

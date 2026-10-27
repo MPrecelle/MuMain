@@ -15,6 +15,7 @@ struct WindowMenuRowEntry
 struct WindowMenuRmlModel
 {
     float textPx = 0.f; // native text size in physical px (RmlNativeTextSize.h)
+    bool gensLocked = false; // the server locked the gens: no gens row, a frame for five rows
 
     std::vector<WindowMenuRowEntry> rows;
 };

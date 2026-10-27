@@ -130,6 +130,7 @@ namespace mu::ui::window
 
             // Corner buttons: "Open" mirrors SetBtnState()'s bStateDown; tooltips are static strings pushed once.
             bool cShopOpen = false, chaInfoOpen = false, myInvenOpen = false, friendOpen = false, windowOpen = false;
+            bool cShopLocked = false; // the server locked the cash shop: its buttons are hidden
             Rml::String cShopTooltip, chaInfoTooltip, myInvenTooltip, friendTooltip, windowTooltip;
 
             // Alert-blink dots: bound boolean + CSS dot, computed each frame from the same state
