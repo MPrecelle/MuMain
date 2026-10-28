@@ -8,6 +8,8 @@ extern int OpenglWindowWidth;
 extern int OpenglWindowHeight;
 extern unsigned int WindowWidth;
 extern unsigned int WindowHeight;
+extern unsigned int WindowPointWidth;
+extern unsigned int WindowPointHeight;
 extern vec3_t CollisionPosition;
 extern double  FPS;
 extern double  FPS_AVG;

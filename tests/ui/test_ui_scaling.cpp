@@ -567,11 +567,12 @@ TEST_CASE("screen overlays fill the window [ui][scaling]")
     CHECK(transform.offsetY == doctest::Approx(0.0f));
 }
 
-TEST_CASE("Windows content scaling enlarges capped UI without double-scaling Retina [ui][scaling]")
+TEST_CASE("content scaling enlarges capped UI by the display scale, Windows and Retina alike [ui][scaling]")
 {
-    CHECK(UI::Scaling::ContentScaleFromMetrics(2.0f, 1.0f) == doctest::Approx(2.0f));
-    CHECK(UI::Scaling::ContentScaleFromMetrics(2.0f, 2.0f) == doctest::Approx(1.0f));
-    CHECK(UI::Scaling::ContentScaleFromMetrics(0.0f, 0.0f) == doctest::Approx(1.0f));
+    // The UI is laid out in drawable pixels, so a Retina display (density 2) scales like Windows at 200 %.
+    CHECK(UI::Scaling::ContentScaleFromMetrics(2.0f) == doctest::Approx(2.0f));
+    CHECK(UI::Scaling::ContentScaleFromMetrics(1.5f) == doctest::Approx(1.5f));
+    CHECK(UI::Scaling::ContentScaleFromMetrics(0.0f) == doctest::Approx(1.0f));
 
     const float previousScale = UI::Scaling::GetWindowContentScale();
     UI::Scaling::SetWindowContentScale(2.0f);

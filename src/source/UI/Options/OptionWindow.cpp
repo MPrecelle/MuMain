@@ -47,7 +47,7 @@
 
 extern int m_MusicOnOff;
 extern int m_SoundOnOff;
-extern unsigned int WindowWidth, WindowHeight;
+extern unsigned int WindowPointWidth, WindowPointHeight;
 extern BOOL g_bUseWindowMode;
 void ReinitializeFonts();
 std::vector<std::pair<int, int>> MuGetSupportedDisplayResolutions();
@@ -632,9 +632,10 @@ void mu::ui::window::COptionWindow::InitResolutionCombo()
     m_resolutions = UI::Options::NormalizeDisplayResolutions(MuGetSupportedDisplayResolutions());
     if (m_resolutions.empty())
     {
-        const int fallbackWidth = WindowWidth > 0 ? static_cast<int>(WindowWidth) : CfgDefaults::CfgDefaultWindowWidth;
+        const int fallbackWidth =
+            WindowPointWidth > 0 ? static_cast<int>(WindowPointWidth) : CfgDefaults::CfgDefaultWindowWidth;
         const int fallbackHeight =
-            WindowHeight > 0 ? static_cast<int>(WindowHeight) : CfgDefaults::CfgDefaultWindowHeight;
+            WindowPointHeight > 0 ? static_cast<int>(WindowPointHeight) : CfgDefaults::CfgDefaultWindowHeight;
         m_resolutions.emplace_back(fallbackWidth, fallbackHeight);
     }
 
@@ -1393,7 +1394,7 @@ void mu::ui::window::COptionWindow::ApplyPendingUIScale()
     // GameConfig::SetWindowSize()/Save() the way ApplyResolution() is: the window size does not
     // change here, and persisting it from this path would write back whatever size the resize
     // settled on instead of the user's own [Window] setting.
-    MuApplyWindowResolution(WindowWidth, WindowHeight, g_bUseWindowMode != FALSE);
+    MuApplyWindowResolution(WindowPointWidth, WindowPointHeight, g_bUseWindowMode != FALSE);
 
     // The clamp may have coerced the request (a choice outside GameConfig's bounds can't happen
     // today, but the ladder and the clamp are independent constants), so re-seed from what was
@@ -1489,8 +1490,8 @@ bool mu::ui::window::COptionWindow::GetRenderAllEffects()
 
 int mu::ui::window::COptionWindow::FindCurrentResolutionIndex()
 {
-    return UI::Options::FindClosestDisplayResolutionIndex(m_resolutions, static_cast<int>(WindowWidth),
-                                                          static_cast<int>(WindowHeight));
+    return UI::Options::FindClosestDisplayResolutionIndex(m_resolutions, static_cast<int>(WindowPointWidth),
+                                                          static_cast<int>(WindowPointHeight));
 }
 
 int mu::ui::window::COptionWindow::FindCurrentLanguageIndex()
@@ -1631,10 +1632,10 @@ void mu::ui::window::COptionWindow::ApplyResolution()
     MuApplyWindowResolution(static_cast<unsigned int>(newWidth), static_cast<unsigned int>(newHeight),
                             g_bUseWindowMode != FALSE);
 
-    // SDL may have coerced the request; WindowWidth/Height now hold the actual result, so
+    // SDL may have coerced the request; WindowPointWidth/Height now hold the actual result, so
     // persist that and snap the selection to it.
     SyncResolutionComboToWindow();
-    GameConfig::GetInstance().SetWindowSize(WindowWidth, WindowHeight);
+    GameConfig::GetInstance().SetWindowSize(WindowPointWidth, WindowPointHeight);
     GameConfig::GetInstance().Save();
 }
 
@@ -1642,8 +1643,8 @@ void mu::ui::window::COptionWindow::ApplyResolution()
 // current selection (config still records the real size).
 void mu::ui::window::COptionWindow::SyncResolutionComboToWindow()
 {
-    const int listed = UI::Options::FindExactDisplayResolutionIndex(m_resolutions, static_cast<int>(WindowWidth),
-                                                                    static_cast<int>(WindowHeight));
+    const int listed = UI::Options::FindExactDisplayResolutionIndex(m_resolutions, static_cast<int>(WindowPointWidth),
+                                                                    static_cast<int>(WindowPointHeight));
     if (listed < 0)
         return;
     m_iResolutionIndex = listed;
@@ -1656,11 +1657,11 @@ void mu::ui::window::COptionWindow::ApplyWindowModeToggle()
     g_bUseWindowMode = m_bWindowedMode ? TRUE : FALSE;
     GameConfig::GetInstance().SetWindowMode(m_bWindowedMode);
 
-    MuApplyWindowResolution(WindowWidth, WindowHeight, m_bWindowedMode);
+    MuApplyWindowResolution(WindowPointWidth, WindowPointHeight, m_bWindowedMode);
 
     // The mode switch may have coerced the size, so save after applying it.
     SyncResolutionComboToWindow();
-    GameConfig::GetInstance().SetWindowSize(WindowWidth, WindowHeight);
+    GameConfig::GetInstance().SetWindowSize(WindowPointWidth, WindowPointHeight);
     GameConfig::GetInstance().Save();
 }
 

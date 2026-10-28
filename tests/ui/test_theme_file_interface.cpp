@@ -6,6 +6,7 @@
 #include "UI/RmlBridge/ThemeInheritance.h"
 #include "UI/RmlBridge/RmlTheme.h"
 #include "UI/RmlBridge/RmlThemedView.h"
+#include "Core/Platform/WindowPixelDensity.h"
 #include "UI/RmlBridge/RmlNativeText.h"
 #include "UI/RmlBridge/RmlScaleInputs.h"
 #include "Data/GameConfig/GameConfig.h"
@@ -503,6 +504,29 @@ TEST_CASE("the native font token names the native text renderer's family [ui][rm
     CHECK(UI::RmlBridge::ResolveThemeFontToken(theme, "font-native") == std::optional<std::string>("DejaVu Sans"));
     UI::RmlBridge::SetSelectedFontFamily("Liberation Sans");
     CHECK(UI::RmlBridge::ResolveThemeFontToken(theme, "font-native") == std::optional<std::string>("Liberation Sans"));
+}
+
+TEST_CASE("a point-scale document sizes rem in window points in every theme [ui][rml-theme]")
+{
+    Fixture fixture;
+    UI::RmlBridge::SetActiveThemeName("alpha");
+    REQUIRE_FALSE(UI::RmlBridge::ThemeUsesNativeTextSize());
+    auto* document = fixture.context->LoadDocumentFromMemory(
+        "<rml><head><style>#tag { display: block; width: 118rem; height: 54rem; }</style></head>"
+        "<body class='point-scale'><div id='tag'/></body></rml>");
+    REQUIRE(document != nullptr);
+    UI::RmlBridge::ApplyNativeTextSize(document);
+    document->Show();
+    fixture.context->Update();
+
+    // Without a window there is one pixel per point.
+    const float density = Core::Platform::GameWindowPixelDensity();
+    CHECK(density == doctest::Approx(1.0f));
+    Rml::Element* tag = document->GetElementById("tag");
+    REQUIRE(tag != nullptr);
+    CHECK(tag->GetOffsetWidth() == doctest::Approx(118.0f * density));
+    CHECK(tag->GetOffsetHeight() == doctest::Approx(54.0f * density));
+    fixture.context->UnloadDocument(document);
 }
 
 TEST_CASE("an empty legacy child preserves real theme resources and layout [ui][rml-theme]")

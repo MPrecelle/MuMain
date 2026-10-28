@@ -14,8 +14,8 @@
 #include "Engine/Object/ZzzObject.h"
 #include "Engine/Object/ZzzCharacter.h"
 
-// RmlUi migration: this class stays a CSprite purely for its geometry (GetWidth/GetHeight, the
-// anchor-offset semantics CSprite::Create's trailing args establish) -- Render() no longer draws
+// RmlUi migration: this class stays a CSprite purely for its geometry (GetWidth/GetHeight; the
+// themes centre the balloon over its anchor themselves) -- Render() no longer draws
 // anything itself. It still does the per-frame CameraProjection::WorldToScreen() + SetPosition()
 // math every call (matching the original exactly, since this position must track the character's
 // live 3D position/camera every frame, not just once), so CCharInfoBalloonMng can read the result

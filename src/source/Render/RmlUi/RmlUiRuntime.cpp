@@ -3,6 +3,8 @@
 #include "RmlUiRuntime.h"
 #include "RmlUiRenderInterface.h"
 #include "RmlUiSystemInterface.h"
+#include "Core/Platform/GameWindow.h"
+#include "Core/Platform/WindowPixelDensity.h"
 #include "Render/RmlUi/RmlAdditiveFillDecorator.h"
 #include "Render/RmlUi/RmlAdditiveImageDecorator.h"
 
@@ -304,15 +306,16 @@ bool RmlUiRuntime::ProcessSdlEvent(SDL_Event& event, SDL_Window* window)
     if (event.type == SDL_EVENT_MOUSE_BUTTON_UP)
         return m_Context->ProcessMouseButtonUp(RmlSDL::ConvertMouseButton(event.button.button), RmlSDL::GetKeyModifierState());
 
-    // Mouse motion is also handled directly rather than through RmlSDL::InputEventHandler, which
-    // multiplies the raw event coordinates by SDL_GetWindowPixelDensity() before forwarding them
-    // -- correct for a backend whose Context was created in DPI-independent "points" and needs
-    // converting up to real pixels, but this engine's own HandleMouseMotion() (Winmain.cpp)
-    // applies no such scaling, and RmlUiRuntime::Create() built the Context directly from real
-    // window pixel dimensions. Multiplying by density on top of that would double-apply any
-    // non-1.0 scaling. Feed the same raw coordinates HandleMouseMotion() sees.
+    // Mouse motion is also handled directly rather than through RmlSDL::InputEventHandler: the
+    // Context is in the drawable's pixels (RmlUiRuntime::Create() gets WindowWidth/Height), so the
+    // event's points are converted at the pixel density, as HandleMouseMotion() (Winmain.cpp) does.
     if (event.type == SDL_EVENT_MOUSE_MOTION)
-        return m_Context->ProcessMouseMove(static_cast<int>(event.motion.x), static_cast<int>(event.motion.y), RmlSDL::GetKeyModifierState());
+    {
+        const float density = Core::Platform::GameWindowPixelDensity();
+        return m_Context->ProcessMouseMove(static_cast<int>(Core::Platform::PointsToPixels(event.motion.x, density)),
+                                           static_cast<int>(Core::Platform::PointsToPixels(event.motion.y, density)),
+                                           RmlSDL::GetKeyModifierState());
+    }
 
     const bool propagates = RmlSDL::InputEventHandler(m_Context, window, event);
     if (event.type == SDL_EVENT_KEY_DOWN)
@@ -332,7 +335,10 @@ void RmlUiRuntime::CancelSyntheticMousePress(unsigned char button, SDL_Window* w
     {
         float x = 0.0f, y = 0.0f;
         SDL_GetMouseState(&x, &y);
-        m_Context->ProcessMouseMove(static_cast<int>(x), static_cast<int>(y), RmlSDL::GetKeyModifierState());
+        const float density = Core::Platform::GameWindowPixelDensity();
+        m_Context->ProcessMouseMove(static_cast<int>(Core::Platform::PointsToPixels(x, density)),
+                                    static_cast<int>(Core::Platform::PointsToPixels(y, density)),
+                                    RmlSDL::GetKeyModifierState());
     }
 }
 

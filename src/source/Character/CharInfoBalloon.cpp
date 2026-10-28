@@ -92,7 +92,9 @@ void CCharInfoBalloon::OnLocaleChanged(void* ctx) noexcept
 
 void CCharInfoBalloon::Create(CHARACTER* pCharInfo)
 {
-    CSprite::Create(118, 54, BITMAP_LOG_IN + 7, 0, nullptr, 59, 54);
+    // Anchored at its top-left: the themes centre the balloon over this point in window points
+    // (char_info_balloon.rcss's .balloon margins), which on a high-density display aren't pixels.
+    CSprite::Create(118, 54, BITMAP_LOG_IN + 7, 0, nullptr, 0, 0);
 
     m_pCharInfo = pCharInfo;
     m_eNameStatus = BalloonNameStatus::Normal;

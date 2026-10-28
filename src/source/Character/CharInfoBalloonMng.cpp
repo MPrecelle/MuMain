@@ -143,12 +143,7 @@ void CCharInfoBalloonMng::SyncRmlModel()
         BalloonEntry& entry = balloons[i];
 
         entry.hidden = !balloon.IsShow();
-        // CSprite::SetPosition() already subtracts the (59, 54) anchor offset internally when
-        // computing what GetXPos()/GetYPos() return (Sprite.cpp: m_aScrCoord[LT].fX = nXCoord -
-        // m_fDatumX) -- GetXPos()/GetYPos() already ARE the anchor-adjusted top-left corner, the
-        // same thing an RmlUi element's left/top needs. Subtracting the offset again here (an
-        // earlier version of this code did) double-applies it, shifting the balloon uniformly
-        // off to the upper-left of every character instead of centered above it.
+        // The point above the character; the theme's .balloon margins centre the balloon on it.
         entry.screenX = balloon.GetXPos();
         entry.screenY = balloon.GetYPos();
         entry.nameStatus = NameStatusKey(balloon.GetNameStatus());

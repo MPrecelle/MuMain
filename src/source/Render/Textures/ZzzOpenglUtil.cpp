@@ -42,8 +42,13 @@ GLfloat FogColor[4] = { 30 / 256.f,20 / 256.f,10 / 256.f, };
 bool _isVSyncAvailable = false;
 bool _isVSyncEnabled = false;
 
+// The game window's size in the drawable's pixels, which the whole 2D pipeline (UI layout, mouse,
+// text) works in, and in points, which SDL sizes windows in and the config records. They differ
+// on a high-density display (macOS Retina: one point is two pixels).
 unsigned int WindowWidth = 1024;
 unsigned int WindowHeight = 768;
+unsigned int WindowPointWidth = 1024;
+unsigned int WindowPointHeight = 768;
 int          MouseX = WindowWidth / 2;
 int          MouseY = WindowHeight / 2;
 int          BackMouseX = MouseX;

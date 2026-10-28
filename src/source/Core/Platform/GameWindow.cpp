@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "Core/Platform/GameWindow.h"
+#include "Core/Platform/WindowPixelDensity.h"
 
 #include <SDL3/SDL_video.h>
 
@@ -46,6 +47,12 @@ SDL_Window* GameWindow()
 void SetGameWindow(SDL_Window* window)
 {
     g_gameWindow = window;
+}
+
+float GameWindowPixelDensity()
+{
+    SDL_Window* window = GameWindow();
+    return UsablePixelDensity(window != nullptr ? SDL_GetWindowPixelDensity(window) : 1.0f);
 }
 
 SDL_Window* MessageBoxParent(SDL_Window* preferred)
