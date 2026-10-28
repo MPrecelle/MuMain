@@ -111,6 +111,9 @@
 .col-map    { left: 28.846%; }
 .col-level  { left: 56.250%; }
 .col-zen    { left: 75.481%; }
+/* The first header ("Battle Zone" in English) is wider than twice its point's distance from the
+   row's edge, so centring it there would clip it at the panel's left: it starts at the edge instead. */
+#head .col-strife { left: 0; transform: none; }
 
 /* Only a reachable destination highlights, matching native's own `if (_bCanMove)` guard around
    setting _bSelected. Native painted this quad AFTER the row text (so the tint sat over the
