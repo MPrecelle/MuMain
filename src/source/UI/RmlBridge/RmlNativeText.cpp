@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "RmlNativeText.h"
 #include "RmlTheme.h"
+#include "Core/Platform/WindowPixelDensity.h"
 #include "UI/Scaling/UITransform.h"
 
 #include <RmlUi/Core/Context.h>
@@ -14,6 +15,7 @@ namespace
 constexpr const char* kNativeTextClass = "native-text";
 constexpr const char* kSceneWindowScaleClass = "scene-window-scale";
 constexpr const char* kSceneBarScaleClass = "scene-bar-scale";
+constexpr const char* kPointScaleClass = "point-scale";
 } // namespace
 
 float SceneWindowRatio(int windowWidth, int windowHeight)
@@ -29,6 +31,12 @@ float SceneWindowPixelRatio(int windowWidth, int windowHeight)
 
 void ApplyNativeTextSize(Rml::ElementDocument* document)
 {
+    if (document != nullptr && document->IsClassSet(kPointScaleClass))
+    {
+        document->SetProperty(Rml::PropertyId::FontSize,
+                              Rml::Property(Core::Platform::GameWindowPixelDensity(), Rml::Unit::PX));
+        return;
+    }
     if (!ThemeUsesNativeTextSize() || !document || !document->GetContext())
         return;
 

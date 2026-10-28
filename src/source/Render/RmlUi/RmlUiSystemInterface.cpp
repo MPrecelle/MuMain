@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "RmlUiSystemInterface.h"
 
+#include "Core/Platform/WindowPixelDensity.h"
 #include "Core/Utilities/Log/MuLogger.h"
 #include <SDL3/SDL.h>
+#include <algorithm>
 #include <chrono>
 
 namespace
@@ -51,10 +53,13 @@ void RmlUiSystemInterface::GetClipboardText(Rml::String& text)
 
 void RmlUiSystemInterface::ActivateKeyboard(Rml::Vector2f caret_position, float line_height)
 {
-    // RmlUi supplies the caret rectangle in window pixels, as SDL_SetTextInputArea requires.
+    // RmlUi supplies the caret rectangle in the drawable's pixels; SDL_SetTextInputArea takes points.
     m_TextInputActive = true;
     if (!m_Window) return;
-    const SDL_Rect rect = {static_cast<int>(caret_position.x), static_cast<int>(caret_position.y), 1, static_cast<int>(line_height)};
+    const float density = Core::Platform::UsablePixelDensity(SDL_GetWindowPixelDensity(m_Window));
+    const SDL_Rect rect = {static_cast<int>(Core::Platform::PixelsToPoints(caret_position.x, density)),
+                           static_cast<int>(Core::Platform::PixelsToPoints(caret_position.y, density)), 1,
+                           std::max(static_cast<int>(Core::Platform::PixelsToPoints(line_height, density)), 1)};
     SDL_SetTextInputArea(m_Window, &rect, 0);
     SDL_StartTextInput(m_Window);
 }

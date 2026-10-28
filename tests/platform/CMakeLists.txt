@@ -28,6 +28,12 @@ mu_add_test(
 )
 
 mu_add_test(
+    NAME window_pixel_density_tests
+    SOURCES
+        test_window_pixel_density.cpp
+)
+
+mu_add_test(
     NAME process_locale_tests
     SOURCES
         test_process_locale.cpp

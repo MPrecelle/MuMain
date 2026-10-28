@@ -3,22 +3,12 @@
 
 #include "Core/Platform/sdl3/SDLWindowFlags.h"
 
-#if defined(__APPLE__)
-TEST_CASE("SDL windows request a 1x drawable on Apple [platform][sdl]")
-{
-    // The 2D pipeline doesn't handle a pixel density above 1 yet (Retina, see SDLWindowFlags.h).
-    const SDL_WindowFlags flags = Core::Platform::BuildSDLWindowFlags(false, false);
-
-    CHECK((flags & SDL_WINDOW_HIGH_PIXEL_DENSITY) == 0);
-}
-#else
 TEST_CASE("SDL windows always request high pixel density [platform][sdl]")
 {
     const SDL_WindowFlags flags = Core::Platform::BuildSDLWindowFlags(false, false);
 
     CHECK((flags & SDL_WINDOW_HIGH_PIXEL_DENSITY) != 0);
 }
-#endif
 
 TEST_CASE("SDL window flags preserve fullscreen and resizable requests [platform][sdl]")
 {

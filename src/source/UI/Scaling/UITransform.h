@@ -163,7 +163,9 @@ namespace UI::Scaling
                                       float measuredHeight, float boxWidth, float boxHeight);
     float FontScaleForBounds(FontRole role, const Transform& transform, float measuredWidth, float measuredHeight,
                              float boxWidth, float boxHeight);
-    float ContentScaleFromMetrics(float displayScale, float pixelDensity);
+    // The UI's pixels per point of the user's display scale. The UI is laid out in the drawable's
+    // pixels, so this is the whole display scale (Windows at 150 %: 1.5, macOS Retina: 2).
+    float ContentScaleFromMetrics(float displayScale);
     float GetWindowContentScale();
     void SetWindowContentScale(float contentScale);
     Transform GetActiveTransform();

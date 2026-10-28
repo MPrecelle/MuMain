@@ -24,6 +24,10 @@ class ElementDocument;
 // same with UI::Scaling::SceneBarScale(), the original's own scale of the character scene button
 // bar. In both, an element with class "native-text" gets the native text size as its font-size,
 // for the text it contains.
+//
+// A document drawn at fixed sizes on the screen, not with the UI (the character scene's name tags),
+// opts in with `class="point-scale"` on its <body>, in every theme: the root font-size is then one
+// window point, so its RCSS writes those sizes in `rem` and keeps them on a high-density display.
 namespace UI::RmlBridge
 {
 // What the companion C++ of a "scene-window-scale" window (hit-test rects, pushed positions) multiplies

@@ -389,11 +389,11 @@ float UI::Scaling::FontScaleForBounds(FontRole role, const Transform& transform,
     return std::clamp(scale, minimumScale, 1.0f);
 }
 
-float UI::Scaling::ContentScaleFromMetrics(float displayScale, float pixelDensity)
+float UI::Scaling::ContentScaleFromMetrics(float displayScale)
 {
-    if (!std::isfinite(displayScale) || !std::isfinite(pixelDensity) || displayScale <= 0.0f || pixelDensity <= 0.0f)
+    if (!std::isfinite(displayScale) || displayScale <= 0.0f)
         return 1.0f;
-    return displayScale / pixelDensity;
+    return displayScale;
 }
 
 float UI::Scaling::GetWindowContentScale()

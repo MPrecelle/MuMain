@@ -3,6 +3,7 @@
 
 #include "Core/Input/KeyState.h"
 #include "Core/Input/UiInputRouter.h"
+#include "Core/Platform/WindowPixelDensity.h"
 
 #include <SDL3/SDL.h>
 #include "UI/Scaling/UITransform.h"
@@ -236,13 +237,21 @@ bool DeliverKey(bool down, int virtualKey, bool& propagates)
     return Deliver(event, propagates);
 }
 
+// The injection's position is in the game's pixels; SDL's mouse events are in points.
+float InjectionPixelDensity()
+{
+    return Core::Platform::UsablePixelDensity(g_injection.window != nullptr ? SDL_GetWindowPixelDensity(g_injection.window)
+                                                                            : 1.0f);
+}
+
 bool DeliverMotion()
 {
     SDL_Event event{};
     event.type = SDL_EVENT_MOUSE_MOTION;
     event.motion.windowID = g_injection.windowId;
-    event.motion.x = g_injection.windowX;
-    event.motion.y = g_injection.windowY;
+    const float density = InjectionPixelDensity();
+    event.motion.x = Core::Platform::PixelsToPoints(g_injection.windowX, density);
+    event.motion.y = Core::Platform::PixelsToPoints(g_injection.windowY, density);
     bool propagates = true;
     return Deliver(event, propagates);
 }
@@ -254,8 +263,9 @@ bool DeliverButton(bool down, bool& propagates)
     event.button.windowID = g_injection.windowId;
     event.button.button =
         g_injection.button == Core::Input::Synthetic::MouseButton::Left ? SDL_BUTTON_LEFT : SDL_BUTTON_RIGHT;
-    event.button.x = g_injection.windowX;
-    event.button.y = g_injection.windowY;
+    const float density = InjectionPixelDensity();
+    event.button.x = Core::Platform::PixelsToPoints(g_injection.windowX, density);
+    event.button.y = Core::Platform::PixelsToPoints(g_injection.windowY, density);
     return Deliver(event, propagates);
 }
 

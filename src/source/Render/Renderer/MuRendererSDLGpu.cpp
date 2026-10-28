@@ -2118,8 +2118,9 @@ public:
             return;
         }
 
-        // F-7 fix: Cache window dimensions once per frame for text Y-flip.
-        SDL_GetWindowSize(s_window, &s_cachedWinW, &s_cachedWinH);
+        // F-7 fix: Cache window dimensions once per frame for text Y-flip. In the drawable's
+        // pixels, the space the game's 2D layer works in (WindowWidth/Height) at any pixel density.
+        SDL_GetWindowSizeInPixels(s_window, &s_cachedWinW, &s_cachedWinH);
 
         // Reset vertex scratch offset, deferred command list, and per-frame diagnostics.
         // Texture uploads may be queued by legacy asset loading before BeginFrame,

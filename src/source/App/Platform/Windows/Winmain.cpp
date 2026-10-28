@@ -5,6 +5,7 @@
 #include "Core/Utilities/FrameProfiler.h"
 #include "Core/Input/SyntheticInput.h"
 #include "Core/Platform/GameWindow.h"
+#include "Core/Platform/WindowPixelDensity.h"
 #include "Core/Input/UiInputRouter.h"
 #include "App/Control/ControlServer.h"
 #include "Core/Text/Utf8.h"
@@ -1048,7 +1049,7 @@ WindowScaleMetrics ReadWindowScaleMetrics()
     SDL_GetWindowSizeInPixels(g_sdlWindow, &metrics.pixelWidth, &metrics.pixelHeight);
     metrics.pixelDensity = SDL_GetWindowPixelDensity(g_sdlWindow);
     metrics.displayScale = SDL_GetWindowDisplayScale(g_sdlWindow);
-    metrics.contentScale = UI::Scaling::ContentScaleFromMetrics(metrics.displayScale, metrics.pixelDensity);
+    metrics.contentScale = UI::Scaling::ContentScaleFromMetrics(metrics.displayScale);
     return metrics;
 }
 
@@ -1068,8 +1069,12 @@ bool RefreshWindowContentScale()
     return changed;
 }
 
-void HandleMouseMotion(float winX, float winY)
+// SDL's mouse position is in points; the game reads it in the drawable's pixels.
+void HandleMouseMotion(float pointX, float pointY)
 {
+    const float density = Core::Platform::GameWindowPixelDensity();
+    const float winX = Core::Platform::PointsToPixels(pointX, density);
+    const float winY = Core::Platform::PointsToPixels(pointY, density);
     g_fWindowMouseX = winX;
     g_fWindowMouseY = winY;
     const auto transform = UI::Scaling::ScreenOverlayTransform(WindowWidth, WindowHeight);
@@ -1171,18 +1176,47 @@ void HandleContentScaleChange()
 {
     if (!RefreshWindowContentScale())
         return;
+    UI::Scaling::SetActiveTransform(UI::Scaling::ScreenOverlayTransform(WindowWidth, WindowHeight));
     ReinitializeFonts();
     RmlUiRuntime::Instance().RefreshScale();
     UI::Placement::Invalidate();
     CSceneUICoordinator::Instance().RepositionSceneUI();
 }
 
+// WindowPointWidth/Height from the window's size in points (SDL's, else the given one) and
+// WindowWidth/Height from its drawable's pixels (SDL's, else the points at the pixel density).
+void SetWindowSizeGlobals(int pointWidth, int pointHeight)
+{
+    int sdlPointWidth = 0, sdlPointHeight = 0;
+    if (g_sdlWindow != nullptr && SDL_GetWindowSize(g_sdlWindow, &sdlPointWidth, &sdlPointHeight) &&
+        sdlPointWidth > 0 && sdlPointHeight > 0)
+    {
+        pointWidth = sdlPointWidth;
+        pointHeight = sdlPointHeight;
+    }
+    int pixelWidth = 0, pixelHeight = 0;
+    if (g_sdlWindow == nullptr || !SDL_GetWindowSizeInPixels(g_sdlWindow, &pixelWidth, &pixelHeight) ||
+        pixelWidth <= 0 || pixelHeight <= 0)
+    {
+        const float density = Core::Platform::GameWindowPixelDensity();
+        pixelWidth =
+            static_cast<int>(std::lround(Core::Platform::PointsToPixels(static_cast<float>(pointWidth), density)));
+        pixelHeight =
+            static_cast<int>(std::lround(Core::Platform::PointsToPixels(static_cast<float>(pointHeight), density)));
+    }
+    WindowPointWidth = static_cast<unsigned int>(pointWidth);
+    WindowPointHeight = static_cast<unsigned int>(pointHeight);
+    WindowWidth = static_cast<unsigned int>(pixelWidth);
+    WindowHeight = static_cast<unsigned int>(pixelHeight);
+}
+
+// The window's new size in points (SDL_EVENT_WINDOW_RESIZED's data); the game's globals become
+// its drawable's pixels.
 void HandleWindowResize(int width, int height)
 {
     if (width <= 0 || height <= 0)
         return;
-    WindowWidth = width;
-    WindowHeight = height;
+    SetWindowSizeGlobals(width, height);
     CInput::Instance().SetScreenSize(WindowWidth, WindowHeight);
     UI::Scaling::SetActiveTransform(UI::Scaling::ScreenOverlayTransform(WindowWidth, WindowHeight));
     OpenglWindowWidth = WindowWidth;
@@ -1379,8 +1413,8 @@ void MuApplyWindowResolution(unsigned int width, unsigned int height, bool windo
     // from what was asked, the borderless fallback is desktop-sized, and mode
     // switches are asynchronous on some window managers. Settle the request,
     // then resize the game to the size the window really got - callers persist
-    // WindowWidth/Height, and config must record what happened, not what was
-    // asked for. Logical size, matching what SDL_EVENT_WINDOW_RESIZED carries.
+    // WindowPointWidth/Height, and config must record what happened, not what
+    // was asked for. Logical size, matching what SDL_EVENT_WINDOW_RESIZED carries.
     SDL_SyncWindow(g_sdlWindow);
     int actualW = w, actualH = h;
     SDL_GetWindowSize(g_sdlWindow, &actualW, &actualH);
@@ -1535,6 +1569,15 @@ MSG MainLoop()
                 break;
             case SDL_EVENT_WINDOW_RESIZED:
                 HandleWindowResize(event.window.data1, event.window.data2);
+                break;
+            case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+                // The same size in points on a display of another pixel density (its data is the
+                // new size in pixels); a resize's own pixel change was already handled above.
+                if (event.window.data1 != static_cast<int>(WindowWidth) ||
+                    event.window.data2 != static_cast<int>(WindowHeight))
+                {
+                    HandleWindowResize(static_cast<int>(WindowPointWidth), static_cast<int>(WindowPointHeight));
+                }
                 break;
             case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
                 HandleContentScaleChange();
@@ -2085,13 +2128,6 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int nC
                                                      _countof(m_Password));
     }
 
-    const auto screenTransform = UI::Scaling::ScreenOverlayTransform(WindowWidth, WindowHeight);
-    UI::Scaling::SetActiveTransform(screenTransform);
-    g_fWindowMouseX = static_cast<float>(WindowWidth) * 0.5f;
-    g_fWindowMouseY = static_cast<float>(WindowHeight) * 0.5f;
-    MouseX = static_cast<int>(UI::Scaling::LogicalX(screenTransform, g_fWindowMouseX));
-    MouseY = static_cast<int>(UI::Scaling::LogicalY(screenTransform, g_fWindowMouseY));
-
     pMultiLanguage = new CMultiLanguage(g_strSelectedML);
 
     if (g_iChatInputType == 1)
@@ -2155,8 +2191,18 @@ int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int nC
         return 0;
     }
     Core::Platform::SetGameWindow(g_sdlWindow);
+    // The config's size is in points; from here on the globals are the drawable's pixels.
+    SetWindowSizeGlobals(static_cast<int>(WindowWidth), static_cast<int>(WindowHeight));
 
     RefreshWindowContentScale();
+
+    // After the content scale: the typography scale is capped by it.
+    const auto screenTransform = UI::Scaling::ScreenOverlayTransform(WindowWidth, WindowHeight);
+    UI::Scaling::SetActiveTransform(screenTransform);
+    g_fWindowMouseX = static_cast<float>(WindowWidth) * 0.5f;
+    g_fWindowMouseY = static_cast<float>(WindowHeight) * 0.5f;
+    MouseX = static_cast<int>(UI::Scaling::LogicalX(screenTransform, g_fWindowMouseX));
+    MouseY = static_cast<int>(UI::Scaling::LogicalY(screenTransform, g_fWindowMouseY));
 
 #if defined(__linux__)
     SDL_Surface* applicationIcon = SDL_LoadPNG(Core::Platform::GameWindowIconFile);

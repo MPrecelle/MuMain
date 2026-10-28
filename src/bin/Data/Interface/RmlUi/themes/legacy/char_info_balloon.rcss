@@ -1,4 +1,5 @@
-/* Legacy theme for the character-select per-character name/guild/level tags (CCharInfoBalloonMng);
+/* Legacy theme for the character-select per-character name/guild/level tags (CCharInfoBalloonMng),
+   sized in window points (1rem, char_info_balloon.rml's "point-scale" body);
    source art character_ex.tga (118x54, single frame). */
 
 @spritesheet charballoon-bg-sheet
@@ -9,8 +10,11 @@
 
 .balloon {
 	position: absolute;
-	width: 118px;
-	height: 54px;
+	width: 118rem;
+	height: 54rem;
+	/* Centred over the point above the character, as the original's (59, 54) anchor. */
+	margin-left: -59rem;
+	margin-top: -54rem;
 	pointer-events: none;
 	/* The original drew the three lines in the fixed font (g_hFixFont). */
 	font-family: Cousine;
@@ -20,29 +24,29 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-	width: 118px;
-	height: 54px;
+	width: 118rem;
+	height: 54rem;
 	decorator: image(charballoon-bg-image);
 }
 
 .balloon-name, .balloon-guild, .balloon-class {
 	position: absolute;
 	left: 0;
-	width: 118px;
+	width: 118rem;
 	text-align: center;
 	white-space: nowrap;
-	font-size: 12px;
+	font-size: 12rem;
 }
 .balloon-name {
-	top: 6px;
+	top: 6rem;
 	color: token(text-primary);
 }
 .balloon-guild {
-	top: 22px;
+	top: 22rem;
 	color: token(text-primary);
 }
 .balloon-class {
-	top: 38px;
+	top: 38rem;
 	color: #ffd927;
 }
 

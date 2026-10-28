@@ -5,7 +5,7 @@
 	<link type="text/rcss" href="base.rcss"/>
 	<link type="text/rcss" href="char_info_balloon.rcss"/>
 </head>
-<body data-model="char_info_balloons">
+<body class="point-scale" data-model="char_info_balloons">
 	<!-- One balloon per character slot; position is recomputed every frame from C++'s 3D->screen
 	     projection, unlike other RML files' static anchors. -->
 	<div class="balloon" data-for="balloon : balloons" data-class-hidden="balloon.hidden"
