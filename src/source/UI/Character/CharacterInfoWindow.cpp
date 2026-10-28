@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "UI/Chat/Chat.h"
 #include "UI/Character/CharacterInfoWindow.h"
+#include "UI/Character/CharacterLevelText.h"
 #include "UI/Core/WindowSystem.h"
 #include "UI/Core/WindowGeometry.h"
 #include "Character/CharacterManager.h"
@@ -444,11 +445,11 @@ void mu::ui::window::CCharacterInfoWindow::BuildTableTexts()
 {
     auto& model = m_RmlView.GetModel();
 
-    wchar_t strLevel[128];
     wchar_t strExp[128];
     wchar_t strPoint[128];
 
-    mu_swprintf(strLevel, I18N::Game::LevelUResetsU, CharacterAttribute->Level, CharacterAttribute->Resets);
+    const std::wstring levelText =
+        UI::Character::CharacterLevelText(CharacterAttribute->Level, CharacterAttribute->Resets);
     mu_swprintf(strExp, I18N::Game::EXPI64dI64d, static_cast<unsigned long long>(CharacterAttribute->Experience),
                 static_cast<unsigned long long>(CharacterAttribute->NextExperience));
 
@@ -475,7 +476,8 @@ void mu::ui::window::CCharacterInfoWindow::BuildTableTexts()
                     I18N::Game::StatPointsRemoved, 0, 0);
     }
 
-    SyncField(m_RmlView.Binder(), &CharacterInfoRmlModel::levelText, "level_text", StringUtils::WideToNarrow(strLevel));
+    SyncField(m_RmlView.Binder(), &CharacterInfoRmlModel::levelText, "level_text",
+              StringUtils::WideToNarrow(levelText.c_str()));
 
     // Empty when there is nothing to spend, which is what the else branch used to clear it to.
     Rml::String levelUpPointText;

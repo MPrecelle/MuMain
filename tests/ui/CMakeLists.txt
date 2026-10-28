@@ -78,6 +78,12 @@ mu_add_test(
 )
 
 mu_add_test(
+    NAME character_level_text_tests
+    SOURCES test_character_level_text.cpp
+    LINK_LIBS MuClient
+)
+
+mu_add_test(
     NAME help_pages_tests
     SOURCES test_help_pages.cpp
     LINK_LIBS MuClient
