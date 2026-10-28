@@ -255,6 +255,30 @@
 #btn_window   { left: 121dp; decorator: image(mainframe-btn-window-normal); }
 #btn_window.open   { decorator: image(mainframe-btn-window-open); }
 
+/* Without the cash shop (the server locked it): the original's row from before the shop button --
+   the plain newui_menu03 across the whole right end and four 38x42 buttons from x 488 (native
+   SetButtonInfo()'s non-shop branch), so hiding #btn_cshop leaves no hole in the art. */
+@spritesheet mainframe-menu03-noshop-sheet { src: "../../../newui_menu03.jpg"; mainframe-frame-right-noshop: 0px 0px 256px 41px; }
+@spritesheet mainframe-btn-chainfo-noshop-sheet { src: "../../../newui_menu_Bt01.jpg"; mainframe-btn-chainfo-noshop-normal: 0px 0px 38px 42px; mainframe-btn-chainfo-noshop-hover: 0px 42px 38px 42px; mainframe-btn-chainfo-noshop-open: 0px 84px 38px 42px; }
+@spritesheet mainframe-btn-myinven-noshop-sheet { src: "../../../newui_menu_Bt02.jpg"; mainframe-btn-myinven-noshop-normal: 0px 0px 38px 42px; mainframe-btn-myinven-noshop-hover: 0px 42px 38px 42px; mainframe-btn-myinven-noshop-open: 0px 84px 38px 42px; }
+@spritesheet mainframe-btn-friend-noshop-sheet  { src: "../../../newui_menu_Bt03.jpg"; mainframe-btn-friend-noshop-normal: 0px 0px 38px 42px; mainframe-btn-friend-noshop-hover: 0px 42px 38px 42px; mainframe-btn-friend-noshop-open: 0px 84px 38px 42px; }
+@spritesheet mainframe-btn-window-noshop-sheet  { src: "../../../newui_menu_Bt04.jpg"; mainframe-btn-window-noshop-normal: 0px 0px 38px 42px; mainframe-btn-window-noshop-hover: 0px 42px 38px 42px; mainframe-btn-window-noshop-open: 0px 84px 38px 42px; }
+#hud_layout.without-cshop #hud_strip { width: 640dp; }
+#hud_layout.without-cshop #frame_right { width: 256dp; decorator: image(mainframe-frame-right-noshop); }
+#hud_layout.without-cshop .frame-btn { width: 38dp; height: 42dp; }
+#hud_layout.without-cshop #btn_chainfo { left: 0dp;   decorator: image(mainframe-btn-chainfo-noshop-normal); }
+#hud_layout.without-cshop #btn_myinven { left: 38dp;  decorator: image(mainframe-btn-myinven-noshop-normal); }
+#hud_layout.without-cshop #btn_friend  { left: 76dp;  decorator: image(mainframe-btn-friend-noshop-normal); }
+#hud_layout.without-cshop #btn_window  { left: 114dp; decorator: image(mainframe-btn-window-noshop-normal); }
+#hud_layout.without-cshop #btn_chainfo:hover { decorator: image(mainframe-btn-chainfo-noshop-hover); }
+#hud_layout.without-cshop #btn_myinven:hover { decorator: image(mainframe-btn-myinven-noshop-hover); }
+#hud_layout.without-cshop #btn_friend:hover  { decorator: image(mainframe-btn-friend-noshop-hover); }
+#hud_layout.without-cshop #btn_window:hover  { decorator: image(mainframe-btn-window-noshop-hover); }
+#hud_layout.without-cshop #btn_chainfo.open { decorator: image(mainframe-btn-chainfo-noshop-open); }
+#hud_layout.without-cshop #btn_myinven.open { decorator: image(mainframe-btn-myinven-noshop-open); }
+#hud_layout.without-cshop #btn_friend.open  { decorator: image(mainframe-btn-friend-noshop-open); }
+#hud_layout.without-cshop #btn_window.open  { decorator: image(mainframe-btn-window-noshop-open); }
+
 /* Char-info quest-alert / friend mail-chat-alert blink dot. */
 .alert-dot {
 	position: absolute;
