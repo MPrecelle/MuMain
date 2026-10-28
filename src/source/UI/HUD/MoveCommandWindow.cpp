@@ -7,6 +7,8 @@
 #include "Core/Utilities/KeyGenerator.h"
 #include "Network/Server/ServerListManager.h"
 #include "Engine/Object/ZzzOpenData.h"
+#include "Engine/Object/ZzzInfomation.h"
+#include "GameLogic/Content/LockedContent.h"
 #include "World/MapInfra/MapManager.h"
 #include "Character/CharacterManager.h"
 #include "Audio/DSPlaySound.h"
@@ -31,6 +33,15 @@ namespace
     constexpr int MapNameCount = 6;
     // The fill slot's smallest panel: the header, the close bar and three rows.
     constexpr float kFillMinimumHeight = 102.f;
+
+    // The map of the gate the entry warps to; the server locks maps, not entries of the list.
+    bool IsTargetMapLocked(const CMoveCommandData::MOVEINFODATA& moveInfo)
+    {
+        const int gate = moveInfo._ReqInfo.iGateNum;
+        if (GateAttribute == nullptr || gate < 0 || gate >= MAX_GATES)
+            return false;
+        return GameLogic::Content::IsMapLocked(GateAttribute[gate].Map);
+    }
 
     const std::wstring MapName[MapNameCount] =
     {
@@ -99,7 +110,13 @@ void mu::ui::window::CMoveCommandWindow::Release()
 
 void mu::ui::window::CMoveCommandWindow::RefreshData()
 {
-    m_listMoveInfoData = CMoveCommandData::GetInstance()->GetMoveCommandDatalist();
+    // The maps the server locked aren't listed, so they can't be chosen either.
+    m_listMoveInfoData.clear();
+    for (auto* moveInfo : CMoveCommandData::GetInstance()->GetMoveCommandDatalist())
+    {
+        if (!IsTargetMapLocked(*moveInfo))
+            m_listMoveInfoData.push_back(moveInfo);
+    }
 }
 
 void mu::ui::window::CMoveCommandWindow::SetFillPlacementSize(float width, float height)

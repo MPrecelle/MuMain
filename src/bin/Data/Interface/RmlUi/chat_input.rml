@@ -17,7 +17,7 @@
 		     data-event-click="chat_set_type(1)" data-attr-data-hint="hint_1"></div>
 		<div id="btn_type_2" class="cib-btn cib-btn-guild" data-class-on="input_msg_type == 2"
 		     data-event-click="chat_set_type(2)" data-attr-data-hint="hint_2"></div>
-		<div id="btn_type_3" class="cib-btn cib-btn-gens" data-class-on="input_msg_type == 3"
+		<div id="btn_type_3" class="cib-btn cib-btn-gens" data-class-on="input_msg_type == 3" data-class-hidden="gens_locked"
 		     data-event-click="chat_set_type(3)" data-attr-data-hint="hint_3"></div>
 
 		<!-- Independent toggles. -->

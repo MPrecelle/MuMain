@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "GameLogic/Commands/ChatCommandCatalog.h"
+#include "GameLogic/Content/LockedContent.h"
 #include "I18N/All.h"
 
 #include "UI/HUD/HotKey.h"
@@ -311,7 +312,7 @@ bool mu::ui::window::CHotKey::UpdateKeyEvent()
         return false;
     }
 #ifdef PBG_ADD_INGAMESHOP_UI_MAINFRAME
-    else if (mu::ui::window::IsPress('X') == true)
+    else if (!GameLogic::Content::IsCashShopLocked() && mu::ui::window::IsPress('X') == true)
     {
         g_ConsoleDebug->Write(MCD_NORMAL, L"InGameShopStatue.Txt CallStack - CHotKey.UpdateKeyEvent()");
         if (g_pInGameShop->IsInGameShopOpen() == false)
@@ -352,7 +353,7 @@ bool mu::ui::window::CHotKey::UpdateKeyEvent()
         return false;
     }
 #endif // PBG_ADD_INGAMESHOP_UI_MAINFRAME
-    else if (mu::ui::window::IsPress('B'))
+    else if (!GameLogic::Content::IsGensLocked() && mu::ui::window::IsPress('B'))
     {
         if (!g_pNewUIGensRanking->SetGensInfo())
             return false;

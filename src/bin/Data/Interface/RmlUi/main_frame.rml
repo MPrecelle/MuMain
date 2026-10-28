@@ -15,8 +15,9 @@
 	     corner: the strip backing, the two gauge groups, EXP, the corner buttons, the item hotkeys,
 	     the skill row and the skill list. A part may overflow the unit (the skill list does), but
 	     only the unit's box is kept clear of windows. A theme styles or hides each part, and
-	     anything only one theme uses is noted where it appears. -->
-	<div id="hud_layout">
+	     anything only one theme uses is noted where it appears. .without-cshop: the server locked
+	     the cash shop, so its button is hidden and a theme may lay the row out without it. -->
+	<div id="hud_layout" data-class-without-cshop="cshop_locked">
 	<!-- The strip's backing: the original menu art (.frame-art), or flat zone and band fills under
 	     #gauge_frame's border, which comes after them so their backgrounds don't cover it. -->
 	<div id="hud_strip" class="hud-part">
@@ -64,7 +65,7 @@
 	<!-- The original's bottom button row. A theme that puts these buttons elsewhere hides it (the
 	     modern theme's are in main_frame_top.rml). -->
 	<div id="buttons" class="hud-part">
-		<div id="btn_cshop" class="frame-btn slot-frame slot-fill" data-class-open="cshop_open" data-event-click="mainframe_cshop_click" data-attr-data-hint="cshop_tooltip">
+		<div id="btn_cshop" class="frame-btn slot-frame slot-fill" data-class-open="cshop_open" data-class-hidden="cshop_locked" data-event-click="mainframe_cshop_click" data-attr-data-hint="cshop_tooltip">
 			<span class="btn-icon-label">SHOP</span>
 		</div>
 		<div id="btn_chainfo" class="frame-btn slot-frame slot-fill" data-class-open="chainfo_open" data-event-click="mainframe_chainfo_click" data-attr-data-hint="chainfo_tooltip">

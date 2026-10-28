@@ -28,6 +28,7 @@
 
 #ifdef PBG_ADD_INGAMESHOP_UI_MAINFRAME
 #include "GameShop/InGameShopSystem.h"
+#include "GameLogic/Content/LockedContent.h"
 #endif //PBG_ADD_INGAMESHOP_UI_MAINFRAME
 
 // RmlUi migration -- see this class's header comment.
@@ -142,6 +143,7 @@ void mu::ui::window::CMainFrameWindow::BindRmlModel(Rml::DataModelConstructor& c
     c.Bind("exp_tooltip", &model.expTooltip);
 
     c.Bind("cshop_open", &model.cShopOpen);
+    c.Bind("cshop_locked", &model.cShopLocked);
     c.Bind("chainfo_open", &model.chaInfoOpen);
     c.Bind("myinven_open", &model.myInvenOpen);
     c.Bind("friend_open", &model.friendOpen);
@@ -655,6 +657,7 @@ void mu::ui::window::CMainFrameWindow::SyncRmlModel()
                 || g_pNewUISystem->IsVisible(mu::ui::window::INTERFACE_CHARACTER));
     }
     syncBool(&MainFrameRmlModel::chaInfoAlert, "chainfo_alert", chaInfoAlert);
+    syncBool(&MainFrameRmlModel::cShopLocked, "cshop_locked", GameLogic::Content::IsCashShopLocked());
 
     // Friend mail/chat blink -- legacy RenderFriendButton()/RenderFriendButtonState().
     const int iBlinkTemp = g_pFriendMenu->GetBlinkTemp();
